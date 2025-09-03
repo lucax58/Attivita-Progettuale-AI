@@ -1,7 +1,7 @@
 import pygame
 import sys
 import time
-from versione_dancing_links import solve_sudoku
+from versione_dancing_links import solve_sudoku_dancing_links
 
 
 pygame.init()
@@ -78,7 +78,7 @@ def button(msg, x, y, w, h, ic, ac, action=None):
 def solve(): 
     size = (3, 3)
     start_time = time.time()
-    for solution in solve_sudoku(size, board): 
+    for solution in solve_sudoku_dancing_links(size, board): 
         for i in range(9): 
             for j in range(9): 
                 board[i][j] = solution[i][j]

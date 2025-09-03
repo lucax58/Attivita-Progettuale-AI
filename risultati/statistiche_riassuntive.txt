@@ -1,0 +1,36 @@
+Statistiche Riassuntive dei Solver
+==================================================
+
+Solver: Backtraking
+  Difficoltà: facile
+    Tempo Medio: 0.0031 s | Min: 0.0031 s | Max: 0.0031 s
+    Ricorsioni Medie: 440 | Min: 440 | Max: 440
+  Difficoltà: medio
+    Tempo Medio: 0.0451 s | Min: 0.0451 s | Max: 0.0451 s
+    Ricorsioni Medie: 7943 | Min: 7943 | Max: 7943
+  Difficoltà: difficile
+    Tempo Medio: 0.0264 s | Min: 0.0264 s | Max: 0.0264 s
+    Ricorsioni Medie: 5062 | Min: 5062 | Max: 5062
+--------------------------------------------------
+Solver: Backtraking_MRV
+  Difficoltà: facile
+    Tempo Medio: 0.0051 s | Min: 0.0051 s | Max: 0.0051 s
+    Ricorsioni Medie: 41 | Min: 41 | Max: 41
+  Difficoltà: medio
+    Tempo Medio: 0.0300 s | Min: 0.0300 s | Max: 0.0300 s
+    Ricorsioni Medie: 207 | Min: 207 | Max: 207
+  Difficoltà: difficile
+    Tempo Medio: 0.0664 s | Min: 0.0664 s | Max: 0.0664 s
+    Ricorsioni Medie: 289 | Min: 289 | Max: 289
+--------------------------------------------------
+Solver: Dancing_links
+  Difficoltà: facile
+    Tempo Medio: 0.0030 s | Min: 0.0030 s | Max: 0.0030 s
+    Ricorsioni Medie: 41 | Min: 41 | Max: 41
+  Difficoltà: medio
+    Tempo Medio: 0.0023 s | Min: 0.0023 s | Max: 0.0023 s
+    Ricorsioni Medie: 51 | Min: 51 | Max: 51
+  Difficoltà: difficile
+    Tempo Medio: 0.0033 s | Min: 0.0033 s | Max: 0.0033 s
+    Ricorsioni Medie: 63 | Min: 63 | Max: 63
+--------------------------------------------------

@@ -3,25 +3,26 @@ import time
 
 
 # Classe per contare le ricorsioni
-class Chiamate:
+class ChiamateDLX:
     def __init__(self):
         self.numero = 0
 
 
-def solve_sudoku_dancing_links(size, grid):   
+def risolvi_sudoku_dancing_links(size, griglia):
     R, C = size
     N = R * C
 
-    chiamate = Chiamate()
+    chiamate = ChiamateDLX()
 
     # Da qui in poi sto seguendo quello che dice nel paper in the dance steps 
     X = (    # La lista X in questo caso contiene tutti i possibili vincoli
-        [("rc", rc) for rc in product(range(N), range(N))]  # row column pair
-        + [("rn", rn) for rn in product(range(N), range(1, N + 1))]  # row number pair
-        + [("cn", cn) for cn in product(range(N), range(1, N + 1))]  # column number pair 
-        + [("bn", bn) for bn in product(range(N), range(1, N + 1))]  # box number pair 
-    )   # praticamente questi vincoli mi garantiscono che ogni numero compaio esattamente solo una volta per riga, una per colonna e una per box  
-    Y = dict()  # Questo dict va a mappare ogni possibile pizzamento per creare una esatta cover matrix   
+        [("rc", rc) for rc in product(range(N), range(N))]  # vincolo (riga, colonna)
+        + [("rn", rn) for rn in product(range(N), range(1, N + 1))]  # vincolo (riga, numero)
+        + [("cn", cn) for cn in product(range(N), range(1, N + 1))]  # vincolo (colonna, numero)
+        + [("bn", bn) for bn in product(range(N), range(1, N + 1))]  # vincolo (box, numero)
+    )   # praticamente questi vincoli mi garantiscono che ogni numero compaia esattamente una volta per riga, una per colonna e una per box  
+
+    Y = dict()  # Questo dict va a mappare ogni possibile piazzamento di un numero per creare la matrice di copertura esatta   
     for r, c, n in product(range(N), range(N), range(1, N + 1)):
         b = (r // R) * R + (c // C)
         Y[(r, c, n)] = [
@@ -29,75 +30,75 @@ def solve_sudoku_dancing_links(size, grid):
             ("rn", (r, n)),
             ("cn", (c, n)), 
             ("bn", (b, n))]   
-    X, Y = exact_cover(X, Y)  
-    # Come continua a dire dopo For example devo ora convertire i vincoli in una 0 - 1 matrice  
-    # e lo faccio con la funzione exact_cover 
-    
-    """Another typical application arises in backtrack programs [16], which enumerate all solutions to a given set of constraints.
-    Backtracking, also called depth-first search, will be the focus of the present paper."""
-    
-    # Quindi adesso sto iterando nella griglia iniziale e cover i vincoli dei numeri iniziali  
-    for i, row in enumerate(grid):
-        for j, n in enumerate(row):
-            if n:
-                cover(X, Y, (i, j, n))
 
-    # Ora, al posto di usare yield, ritorna la prima soluzione trovata
-    solution = next(solve(X, Y, [], chiamate), None)
-    if solution:
+    X, Y = costruisci_cover_esatto(X, Y)  
+    # Come dice il paper, devo ora convertire i vincoli in una matrice 0 - 1 
+    # e lo faccio con la funzione costruisci_cover_esatto 
+    
+    # Quindi adesso sto iterando nella griglia iniziale e copro i vincoli dei numeri già presenti  
+    for i, riga in enumerate(griglia):
+        for j, numero in enumerate(riga):
+            if numero:
+                copri(X, Y, (i, j, numero))
+
+    # Ora cerco una soluzione
+    soluzione = next(solve_dlx(X, Y, [], chiamate), None)
+    if soluzione:
         # Applica la soluzione alla griglia
-        for (r, c, n) in solution: 
-            grid[r][c] = n
+        for (r, c, n) in soluzione: 
+            griglia[r][c] = n
     
     # Restituisci il dizionario con successo, soluzione e ricorsioni
     return {
-        "successo": True if solution else False,
-        "soluzione": grid if solution else None,
+        "successo": True if soluzione else False,
+        "soluzione": griglia if soluzione else None,
         "ricorsioni": chiamate.numero
     }
 
 
 # Funzione per costruire la struttura dati con le coperture
-def exact_cover(X, Y):  
+def costruisci_cover_esatto(X, Y):  
     X = {j: set() for j in X}
-    for i, row in Y.items():
-        for j in row:
+    for i, riga in Y.items():
+        for j in riga:
             X[j].add(i)
 
     return X, Y
 
-# Funzione che risolve il problema di Sudoku
-def solve(X, Y, solution, chiamate): 
+
+# Funzione che risolve il Sudoku con Dancing Links
+def solve_dlx(X, Y, soluzione, chiamate): 
     chiamate.numero += 1  # Incrementa ogni volta che viene fatta una ricorsione
     if not X: 
-        yield list(solution)
+        yield list(soluzione)
     else: 
-        c = min(X, key = lambda c: len(X[c]))  # Seleziona la colonna con il minimo numero di opzioni
+        # Seleziona la colonna con il minimo numero di opzioni
+        c = min(X, key=lambda c: len(X[c]))  
         for r in list(X[c]): 
-            solution.append(r)
-            cols = cover(X, Y, r)  # Copri le colonne
-            for s in solve(X, Y, solution, chiamate): 
+            soluzione.append(r)
+            colonne_coperte = copri(X, Y, r)  # Copro le colonne
+            for s in solve_dlx(X, Y, soluzione, chiamate): 
                 yield s
-            uncover(X, Y, r, cols)  # Uncover per il backtracking
-            solution.pop()
+            scopri(X, Y, r, colonne_coperte)  # Ripristino per il backtracking
+            soluzione.pop()
 
 
-# Funzione che rimuove righe e colonne associate a un dato placement
-def cover(X, Y, r):
-    cols = []
+# Funzione che rimuove righe e colonne associate a un dato piazzamento
+def copri(X, Y, r):
+    colonne = []
     for j in Y[r]:
         for i in X[j]:
             for k in Y[i]:
                 if k != j:
                     X[k].remove(i)
-        cols.append(X.pop(j))
+        colonne.append(X.pop(j))
+    return colonne
 
-    return cols
 
 # Funzione che ripristina righe e colonne (uncover)
-def uncover(X, Y, r, cols): 
+def scopri(X, Y, r, colonne): 
     for j in reversed(Y[r]): 
-        X[j] = cols.pop()
+        X[j] = colonne.pop()
         for i in X[j]: 
             for k in Y[i]: 
                 if k != j: 
@@ -106,32 +107,33 @@ def uncover(X, Y, r, cols):
 
 # Da qui in poi è per testare se l'algoritmo funziona 
 # Griglia di Sudoku di esempio (0 indica una cella vuota)
-puzzle = [
-    [0, 0, 0, 0, 0, 2, 0, 8, 0],
-	[0, 7, 0, 0, 0, 8, 0, 0, 6],
-	[8, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 8, 0, 7, 0, 0, 0, 0],
-	[0, 0, 0, 0, 1, 0, 9, 0, 0],
-	[0, 2, 0, 5, 3, 0, 0, 6, 0],
-	[0, 0, 0, 1, 0, 7, 0, 0, 0],
-	[5, 0, 1, 0, 0, 0, 2, 0, 8]
+sudoku = [
+    [0, 0, 3, 0, 2, 0, 6, 0, 0],
+    [9, 0, 0, 3, 0, 5, 0, 0, 1],
+    [0, 0, 1, 8, 0, 6, 4, 0, 0],
+    [0, 0, 8, 1, 0, 2, 9, 0, 0],
+    [7, 0, 0, 0, 0, 0, 0, 0, 8],
+    [0, 0, 6, 7, 0, 8, 2, 0, 0],
+    [0, 0, 2, 6, 0, 9, 5, 0, 0],
+    [8, 0, 0, 2, 0, 3, 0, 0, 9],
+    [0, 0, 5, 0, 1, 0, 3, 0, 0]
 ]
+
 # Funzione di test 
 def test_sudoku():
     size = (3, 3)  # La dimensione della griglia è 3x3, che corrisponde a un Sudoku 9x9
     start_time = time.time()
-    result = solve_sudoku_dancing_links(size, puzzle)  # Chiama la funzione solve_sudoku con la griglia
+    risultato = risolvi_sudoku_dancing_links(size, sudoku)  # Risolvi la griglia
     
-    # Stampa i risultati come richiesto
-    if result["successo"]:
+    # Stampa i risultati
+    if risultato["successo"]:
         print("Sudoku risolto:")
-        for row in result["soluzione"]:
-            print(row)
+        for riga in risultato["soluzione"]:
+            print(riga)
     else:
-        print("Non è stato trovato nessuna soluzione.")
+        print("Non è stata trovata nessuna soluzione.")
     
-    print(f"Numero di ricorsioni: {result['ricorsioni']}")
+    print(f"Numero di ricorsioni: {risultato['ricorsioni']}")
     
     end_time = time.time()
     print("Il tempo è " + str(end_time - start_time))

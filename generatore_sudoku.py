@@ -1,84 +1,95 @@
 import random
+import copy
 
-def genera_sudoku_facile():
-    # Una griglia 9x9 vuota
-    sudoku = [[0] * 9 for _ in range(9)]
-    
-    # Per un sudoku facile imposto molti numeri iniziali -> 40 numeri iniziali
-    celle_piene = 40
-    while celle_piene > 0:
-        # Generiamo una cella random da riempire
-        riga = random.randint(0, 8)
-        colonna = random.randint(0, 8)
-        
-        # Verifica che la cella sia vuota
-        if sudoku[riga][colonna] == 0:
-            # Assegniamo un numero casuale che non viola le regole del Sudoku
-            numero = random.randint(1, 9)
-            if verifica_numero(sudoku, riga, colonna, numero):
-                sudoku[riga][colonna] = numero
-                celle_piene -= 1
-    
-    return sudoku
 
-def verifica_numero(sudoku, riga, colonna, numero):
-    """Controlla se un numero è valido in una posizione (riga, colonna)"""
-    # Controllo della riga
-    if numero in sudoku[riga]:
-        return False
-    # Controllo della colonna
-    if numero in [sudoku[i][colonna] for i in range(9)]:
-        return False
-    # Controllo del box 3x3
-    box_riga = (riga // 3) * 3
-    box_colonna = (colonna // 3) * 3
+def controllo_valido(griglia, riga, colonna, numero):
+    """Controlla se un numero può essere inserito in (riga, colonna)."""
+    for i in range(9):
+        if griglia[riga][i] == numero or griglia[i][colonna] == numero:
+            return False
+
+    inizio_riga = (riga // 3) * 3
+    inizio_colonna = (colonna // 3) * 3
     for i in range(3):
         for j in range(3):
-            if sudoku[box_riga + i][box_colonna + j] == numero:
+            if griglia[inizio_riga + i][inizio_colonna + j] == numero:
                 return False
     return True
 
 
+def risolvi_sudoku(griglia):
+    """Risolutore semplice con backtracking, restituisce True se risolvibile."""
+    for r in range(9):
+        for c in range(9):
+            if griglia[r][c] == 0:  # Trova cella vuota
+                for numero in range(1, 10):
+                    if controllo_valido(griglia, r, c, numero):
+                        griglia[r][c] = numero
+                        if risolvi_sudoku(griglia):
+                            return True
+                        griglia[r][c] = 0
+                return False
+    return True
+
+
+def genera_soluzione(griglia):
+    """Genera una griglia Sudoku completa valida con backtracking."""
+    numeri = list(range(1, 10))
+    for r in range(9):
+        for c in range(9):
+            if griglia[r][c] == 0:
+                random.shuffle(numeri)
+                for numero in numeri:
+                    if controllo_valido(griglia, r, c, numero):
+                        griglia[r][c] = numero
+                        if genera_soluzione(griglia):
+                            return True
+                        griglia[r][c] = 0
+                return False
+    return True
+
+
+def crea_puzzle(celle_da_togliere):
+    """Crea un Sudoku con un numero di celle vuote specifico."""
+    #Genera una soluzione completa
+    griglia = [[0] * 9 for _ in range(9)]
+    genera_soluzione(griglia)
+
+    #Rimuovi celle in modo casuale, verificando che resti risolvibile
+    celle = [(r, c) for r in range(9) for c in range(9)]
+    random.shuffle(celle)
+    celle_rimosse = 0
+
+    while celle and celle_rimosse < celle_da_togliere:
+        r, c = celle.pop()
+        backup = griglia[r][c]
+        griglia[r][c] = 0
+
+        copia = copy.deepcopy(griglia)
+        if risolvi_sudoku(copia):  #Verifica risolvibilità
+            celle_rimosse += 1
+        else:
+            griglia[r][c] = backup  #Non è risolvibile, ripristina
+
+    return griglia
+
+
+def genera_sudoku_facile():
+    return crea_puzzle(40)  # circa 40 celle vuote → facile
+
 def genera_sudoku_medio():
-    sudoku = [[0] * 9 for _ in range(9)]
-    
-    # Impostiamo un numero medio di celle piene, circa 30 numeri
-    celle_piene = 30
-    while celle_piene > 0:
-        riga = random.randint(0, 8)
-        colonna = random.randint(0, 8)
-        
-        if sudoku[riga][colonna] == 0:
-            numero = random.randint(1, 9)
-            if verifica_numero(sudoku, riga, colonna, numero):
-                sudoku[riga][colonna] = numero
-                celle_piene -= 1
-    
-    return sudoku
+    return crea_puzzle(50)  # circa 50 celle vuote → medio
 
 def genera_sudoku_difficile():
-    sudoku = [[0] * 9 for _ in range(9)]
-    
-    # Impostiamo un numero ridotto di celle piene, circa 20 numeri
-    celle_piene = 20
-    while celle_piene > 0:
-        riga = random.randint(0, 8)
-        colonna = random.randint(0, 8)
-        
-        if sudoku[riga][colonna] == 0:
-            numero = random.randint(1, 9)
-            if verifica_numero(sudoku, riga, colonna, numero):
-                sudoku[riga][colonna] = numero
-                celle_piene -= 1
-    
-    return sudoku
+    return crea_puzzle(60)  # circa 60 celle vuote → difficile
+
 
 
 def stampa_sudoku(sudoku):
     for riga in sudoku:
         print(" ".join(str(num) if num != 0 else '.' for num in riga))
-"""
-# Testiamo la generazione
+
+#Test
 print("Sudoku Facile:")
 stampa_sudoku(genera_sudoku_facile())
 
@@ -87,4 +98,3 @@ stampa_sudoku(genera_sudoku_medio())
 
 print("\nSudoku Difficile:")
 stampa_sudoku(genera_sudoku_difficile())
-"""
