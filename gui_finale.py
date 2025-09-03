@@ -1,9 +1,10 @@
 import pygame
 import pygame.locals as pl
 import pygame.freetype
+import time
 
-from versione_dancing_links import solve_sudoku
-
+from versione_dancing_links import risolvi_sudoku_dancing_links
+from generatore_sudoku import genera_sudoku_facile
 
 viola = (157, 107, 237)
 nero = (0, 0, 0)
@@ -11,25 +12,28 @@ nero = (0, 0, 0)
 def main():
     valoriSudoku = [[None] * 9 for _ in range(9)]
     soluzioneSudoku = [[None] * 9 for _ in range(9)]
-    numeroSoluzioni = [""]
+    tempoRisoluzione = [""]  # stringa per mostrare il tempo
 
     scriviValoriIniziali(valoriSudoku)
 
     bottoneRisolvi = {"x": 120, "y": 640, "name": "Risolvi!", "clicked": False}
-    bottonePulisci = {"x": 260, "y": 640, "name": "Pulisci!", "clicked": False}
+    bottoneGenera = {"x": 260, "y": 640, "name": "Genera!", "clicked": False}
 
     selezioneCorrente = (None, None)
-
     inEsecuzione = True
+
     while inEsecuzione:
         schermo.fill((240, 240, 240))
 
-        disegnaGriglia(numeroSoluzioni)
+        disegnaGriglia()
         scriviNumeri(valoriSudoku, nero)
         scriviNumeri(soluzioneSudoku, viola)
         evidenziaCasella(selezioneCorrente, viola)
         disegnaBottone(bottoneRisolvi)
-        disegnaBottone(bottonePulisci)
+        disegnaBottone(bottoneGenera)
+
+        # mostra il tempo
+        fontSoluzioni.render_to(schermo, (380, 655), "Tempo: " + tempoRisoluzione[0], viola)
 
         eventi = pygame.event.get()
         for evento in eventi:
@@ -42,16 +46,26 @@ def main():
 
                 if cliccato(bottoneRisolvi, x, y):
                     bottoneRisolvi["clicked"] = True
-                    risolviPuzzle(valoriSudoku, soluzioneSudoku, numeroSoluzioni)
+                    tempoRisoluzione[0] = risolviPuzzle(valoriSudoku, soluzioneSudoku)
 
-                if cliccato(bottonePulisci, x, y):
-                    bottonePulisci["clicked"] = True
-                    valoriSudoku = [[None] * 9 for _ in range(9)]
-                    soluzioneSudoku = [[None] * 9 for _ in range(9)]
+                if cliccato(bottoneGenera, x, y):
+                    bottoneGenera["clicked"] = True
+                    griglia_generata = genera_sudoku_facile()
+                    
+                    # Converti la griglia generata nel formato corretto
+                    for r in range(9):
+                        for c in range(9):
+                            if griglia_generata[r][c] == 0:
+                                valoriSudoku[c][r] = None
+                            else:
+                                valoriSudoku[c][r] = str(griglia_generata[r][c])
+                    
+                    soluzioneSudoku[:] = [[None] * 9 for _ in range(9)]
+                    tempoRisoluzione[0] = ""
 
             if evento.type == pygame.MOUSEBUTTONUP:
                 bottoneRisolvi["clicked"] = False
-                bottonePulisci["clicked"] = False
+                bottoneGenera["clicked"] = False
 
             if evento.type == pygame.KEYDOWN:
                 col, row = selezioneCorrente
@@ -87,13 +101,9 @@ larghezzaCella = int((larghezza - (2 * margine)) / 9)
 larghezzaBottone = 100
 altezzaBottone = 50
 
-grigio = (80, 80, 80)
-nero = (0, 0, 0)
 
-
-def disegnaGriglia(numeroSoluzioni):
+def disegnaGriglia():
     fontTitolo.render_to(schermo, (int(larghezza / 2) - 155, 20), "Risolutore Sudoku", nero)
-    fontSoluzioni.render_to(schermo, (380, 655), "# Soluzioni: " + numeroSoluzioni[0], viola)
 
     sottile = 3
     spesso = 10
@@ -123,7 +133,9 @@ def cliccato(bottone, x, y):
 
 
 def scriviNumero(numero, col, row, colore):
-    if numero is not None:
+    # Non mostrare None, 0 o "0"
+    if numero is not None and numero != 0 and numero != "0":
+        numero = str(numero)
         x = int((col * larghezzaCella) + (margine * 1.24))
         y = int((row * larghezzaCella) + (margine * 1.165))
         fontNumero.render_to(schermo, (x, y), numero, colore)
@@ -151,76 +163,67 @@ def evidenziaCasella(selezionata, colore):
         pygame.draw.rect(schermo, colore, (x, y, larghezzaCella, larghezzaCella), 7)
 
 
-def risolviPuzzle(valoriSudoku, valoriSoluzione, numSoluzioni):
+def risolviPuzzle(valoriSudoku, valoriSoluzione):
     print("Sto risolvendo il sudoku usando Dancing Links...")
-
-    # Converti da lista colonne (valoriSudoku[col][row]) a formato [ [riga1], [riga2], ... ]
     griglia = []
     for r in range(9):
         riga = []
         for c in range(9):
             val = valoriSudoku[c][r]
-            if val is None:
+            # Tratta sia None che "0" come celle vuote
+            if val is None or val == "0" or val == 0:
                 riga.append(0)
             else:
                 riga.append(int(val))
         griglia.append(riga)
 
-    soluzioni = solve_sudoku((3, 3), griglia)
+    start = time.time()
+    risultato = risolvi_sudoku_dancing_links((3, 3), griglia)
+    end = time.time()
 
-    try:
-        soluzione = next(soluzioni)
-        numSoluzioni[0] = "1"  # Dancing Links restituisce solo una soluzione alla volta
-
-        # Inserisci i valori risolti nella matrice soluzione
+    if risultato["successo"]:
         for r in range(9):
             for c in range(9):
-                if valoriSudoku[c][r] is None:  # Mostra solo i nuovi numeri
-                    valoriSoluzione[c][r] = str(soluzione[r][c])
-
+                # Solo per le celle che erano vuote, mostra la soluzione
+                val_originale = valoriSudoku[c][r]
+                if val_originale is None or val_originale == "0" or val_originale == 0:
+                    valoriSoluzione[c][r] = str(risultato["soluzione"][r][c])
         print("Sudoku risolto!")
+    else:
+        print("Nessuna soluzione trovata!")
 
-    except StopIteration:
-        numSoluzioni[0] = "0"
-        print("Nessuna soluzione trovata.")
+    durata = end - start
+    return f"{durata:.3f} s"
 
 
 def scriviValoriIniziali(valoriSudoku):
     valoriSudoku[0][0] = "5"
     valoriSudoku[1][0] = "3"
     valoriSudoku[4][0] = "7"
-
     valoriSudoku[0][1] = "6"
     valoriSudoku[3][1] = "1"
     valoriSudoku[4][1] = "9"
     valoriSudoku[5][1] = "5"
-
     valoriSudoku[1][2] = "9"
     valoriSudoku[2][2] = "8"
     valoriSudoku[7][2] = "6"
-
     valoriSudoku[0][3] = "8"
     valoriSudoku[4][3] = "6"
     valoriSudoku[8][3] = "3"
-
     valoriSudoku[0][4] = "4"
     valoriSudoku[3][4] = "8"
     valoriSudoku[5][4] = "3"
     valoriSudoku[8][4] = "1"
-
     valoriSudoku[0][5] = "7"
     valoriSudoku[4][5] = "2"
     valoriSudoku[8][5] = "6"
-
     valoriSudoku[1][6] = "6"
     valoriSudoku[6][6] = "2"
     valoriSudoku[7][6] = "8"
-
     valoriSudoku[3][7] = "4"
     valoriSudoku[4][7] = "1"
     valoriSudoku[5][7] = "9"
     valoriSudoku[8][7] = "5"
-
     valoriSudoku[4][8] = "8"
     valoriSudoku[7][8] = "7"
     valoriSudoku[8][8] = "9"

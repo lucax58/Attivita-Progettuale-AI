@@ -1,7 +1,7 @@
 import pygame
 import sys
 import time
-from versione_dancing_links import solve_sudoku_dancing_links
+from versione_dancing_links import risolvi_sudoku_dancing_links
 
 
 pygame.init()

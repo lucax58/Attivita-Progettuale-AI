@@ -32,7 +32,7 @@ def risolvi_sudoku_dancing_links(size, griglia):
             ("bn", (b, n))]   
 
     X, Y = costruisci_cover_esatto(X, Y)  
-    # Come dice il paper, devo ora convertire i vincoli in una matrice 0 - 1 
+    # Come dice il paper, ora devo convertire i vincoli in una matrice 0 - 1 
     # e lo faccio con la funzione costruisci_cover_esatto 
     
     # Quindi adesso sto iterando nella griglia iniziale e copro i vincoli dei numeri già presenti  

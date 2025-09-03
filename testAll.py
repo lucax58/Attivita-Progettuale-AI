@@ -1,6 +1,5 @@
 import time
 import os
-import csv
 import statistics
 
 from versione_backtraking_base import risolvi_sudoku_backtracking 
@@ -11,7 +10,7 @@ from generatore_sudoku import genera_sudoku_medio
 from generatore_sudoku import genera_sudoku_facile
 
 
-# Funzione per testare una singola soluzione
+#Funzione per testare una singola soluzione
 def testa_soluzione(soluzione, sudoku):
     start_time = time.time()
     risultato = soluzione((3, 3), sudoku)  # Ogni solver restituisce un dizionario
@@ -86,9 +85,9 @@ if __name__ == "__main__":
 
     # Inizializza le soluzioni come dizionario
     soluzioni = {
-        "Backtraking": risolvi_sudoku_backtracking,  # Solver backtracking base
-        "Backtraking_MRV": risolvi_sudoku_MRV,      # Solver backtracking MRV
-        "Dancing_links": risolvi_sudoku_dancing_links  # Solver con dancing links 
+        "Backtraking": risolvi_sudoku_backtracking, 
+        "Backtraking_MRV": risolvi_sudoku_MRV,    
+        "Dancing_links": risolvi_sudoku_dancing_links  
     }
 
     # Struttura per salvare statistiche
@@ -108,18 +107,18 @@ if __name__ == "__main__":
             if os.path.exists(nome_file):
                 os.remove(nome_file)
 
-    # Esegui i test per ogni livello di difficoltà
-    for i in range(1): 
+    # Eseguo test per ogni livello di difficoltà
+    for i in range(5): 
         sudoku = genera_sudoku_facile()
         benchmark_e_scrivi(soluzioni, "facile", sudoku, stats)
 
-    for i in range(1): 
+    for i in range(5): 
         sudoku = genera_sudoku_medio()
         benchmark_e_scrivi(soluzioni, "medio", sudoku, stats)
 
-    for i in range(1): 
+    for i in range(5): 
         sudoku = genera_sudoku_difficile()
         benchmark_e_scrivi(soluzioni, "difficile", sudoku, stats)
 
-    # Scrivi CSV con statistiche riassuntive
+   
     scrivi_statistiche_totali(stats)
