@@ -3,34 +3,34 @@ Statistiche Riassuntive dei Solver
 
 Solver: Backtraking
   Difficoltà: facile
-    Tempo Medio: 0.0010 s | Min: 0.0002 s | Max: 0.0032 s
-    Ricorsioni Medie: 180 | Min: 42 | Max: 551
+    Tempo Medio: 0.0008 s | Min: 0.0002 s | Max: 0.0020 s
+    Ricorsioni Medie: 119 | Min: 42 | Max: 367
   Difficoltà: medio
-    Tempo Medio: 0.0257 s | Min: 0.0010 s | Max: 0.0948 s
-    Ricorsioni Medie: 3525 | Min: 144 | Max: 12178
+    Tempo Medio: 0.0183 s | Min: 0.0006 s | Max: 0.0816 s
+    Ricorsioni Medie: 2812 | Min: 89 | Max: 11936
   Difficoltà: difficile
-    Tempo Medio: 0.0519 s | Min: 0.0013 s | Max: 0.2161 s
-    Ricorsioni Medie: 7083 | Min: 75 | Max: 29640
+    Tempo Medio: 3.7121 s | Min: 0.0008 s | Max: 63.4964 s
+    Ricorsioni Medie: 406488 | Min: 106 | Max: 6882023
 --------------------------------------------------
 Solver: Backtraking_MRV
   Difficoltà: facile
-    Tempo Medio: 0.0051 s | Min: 0.0050 s | Max: 0.0053 s
-    Ricorsioni Medie: 41 | Min: 41 | Max: 41
+    Tempo Medio: 0.0059 s | Min: 0.0051 s | Max: 0.0067 s
+    Ricorsioni Medie: 42 | Min: 41 | Max: 47
   Difficoltà: medio
-    Tempo Medio: 0.0153 s | Min: 0.0094 s | Max: 0.0269 s
-    Ricorsioni Medie: 76 | Min: 51 | Max: 115
+    Tempo Medio: 0.0114 s | Min: 0.0088 s | Max: 0.0176 s
+    Ricorsioni Medie: 59 | Min: 51 | Max: 86
   Difficoltà: difficile
-    Tempo Medio: 0.0212 s | Min: 0.0172 s | Max: 0.0295 s
-    Ricorsioni Medie: 74 | Min: 61 | Max: 95
+    Tempo Medio: 0.0255 s | Min: 0.0174 s | Max: 0.0908 s
+    Ricorsioni Medie: 80 | Min: 61 | Max: 239
 --------------------------------------------------
 Solver: Dancing_links
   Difficoltà: facile
-    Tempo Medio: 0.0022 s | Min: 0.0019 s | Max: 0.0031 s
+    Tempo Medio: 0.0023 s | Min: 0.0018 s | Max: 0.0037 s
     Ricorsioni Medie: 41 | Min: 41 | Max: 41
   Difficoltà: medio
-    Tempo Medio: 0.0024 s | Min: 0.0022 s | Max: 0.0026 s
-    Ricorsioni Medie: 51 | Min: 51 | Max: 51
+    Tempo Medio: 0.0026 s | Min: 0.0022 s | Max: 0.0039 s
+    Ricorsioni Medie: 55 | Min: 51 | Max: 75
   Difficoltà: difficile
-    Tempo Medio: 0.0028 s | Min: 0.0026 s | Max: 0.0030 s
-    Ricorsioni Medie: 61 | Min: 61 | Max: 61
+    Tempo Medio: 0.0036 s | Min: 0.0027 s | Max: 0.0053 s
+    Ricorsioni Medie: 62 | Min: 61 | Max: 70
 --------------------------------------------------

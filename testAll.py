@@ -70,7 +70,7 @@ def scrivi_statistiche_totali(stats):
                     ricorsioni_min = min(dati["ricorsioni"])
                     ricorsioni_max = max(dati["ricorsioni"])
 
-                    file.write(f"  Difficoltà: {diff}\n")
+                    file.write(f"  Difficolta: {diff}\n")
                     file.write(f"    Tempo Medio: {tempo_medio:.4f} s | Min: {tempo_min:.4f} s | Max: {tempo_max:.4f} s\n")
                     file.write(f"    Ricorsioni Medie: {ricorsioni_medie:.0f} | Min: {ricorsioni_min} | Max: {ricorsioni_max}\n")
             file.write("-"*50 + "\n")
@@ -108,15 +108,15 @@ if __name__ == "__main__":
                 os.remove(nome_file)
 
     # Eseguo test per ogni livello di difficoltà
-    for i in range(5): 
+    for i in range(20): 
         sudoku = genera_sudoku_facile()
         benchmark_e_scrivi(soluzioni, "facile", sudoku, stats)
 
-    for i in range(5): 
+    for i in range(20): 
         sudoku = genera_sudoku_medio()
         benchmark_e_scrivi(soluzioni, "medio", sudoku, stats)
 
-    for i in range(5): 
+    for i in range(20): 
         sudoku = genera_sudoku_difficile()
         benchmark_e_scrivi(soluzioni, "difficile", sudoku, stats)
 
