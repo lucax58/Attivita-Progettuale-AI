@@ -8,11 +8,24 @@ class ChiamateDLX:
         self.numero = 0
 
 
-def risolvi_sudoku_dancing_links(size, griglia):
+def risolvi_sudoku_dancing_links(size, griglia_input):
     R, C = size
     N = R * C
 
     chiamate = ChiamateDLX()
+    
+    # Conversione per prendersi la stringa 
+    if isinstance(griglia_input, str):
+        griglia = []
+        for i in range(N):
+            riga = []
+            for j in range(N):
+                char = griglia_input[i * N + j]
+                riga.append(int(char) if char.isdigit() and char != '0' else 0)
+            griglia.append(riga)
+    else:
+        # Se è già una lista, fai una copia per non modificare l'originale
+        griglia = [riga[:] for riga in griglia_input]
 
     # Da qui in poi sto seguendo quello che dice nel paper in the dance steps 
     X = (    # La lista X in questo caso contiene tutti i possibili vincoli
@@ -104,40 +117,3 @@ def scopri(X, Y, r, colonne):
                 if k != j: 
                     X[k].add(i)
 
-
-# Da qui in poi è per testare se l'algoritmo funziona 
-# Griglia di Sudoku di esempio (0 indica una cella vuota)
-sudoku = [
-    [0, 0, 3, 0, 2, 0, 6, 0, 0],
-    [9, 0, 0, 3, 0, 5, 0, 0, 1],
-    [0, 0, 1, 8, 0, 6, 4, 0, 0],
-    [0, 0, 8, 1, 0, 2, 9, 0, 0],
-    [7, 0, 0, 0, 0, 0, 0, 0, 8],
-    [0, 0, 6, 7, 0, 8, 2, 0, 0],
-    [0, 0, 2, 6, 0, 9, 5, 0, 0],
-    [8, 0, 0, 2, 0, 3, 0, 0, 9],
-    [0, 0, 5, 0, 1, 0, 3, 0, 0]
-]
-
-# Funzione di test 
-def test_sudoku():
-    size = (3, 3)  # La dimensione della griglia è 3x3, che corrisponde a un Sudoku 9x9
-    start_time = time.time()
-    risultato = risolvi_sudoku_dancing_links(size, sudoku)  # Risolvi la griglia
-    
-    # Stampa i risultati
-    if risultato["successo"]:
-        print("Sudoku risolto:")
-        for riga in risultato["soluzione"]:
-            print(riga)
-    else:
-        print("Non è stata trovata nessuna soluzione.")
-    
-    print(f"Numero di ricorsioni: {risultato['ricorsioni']}")
-    
-    end_time = time.time()
-    print("Il tempo è " + str(end_time - start_time))
-
-
-# Chiamare la funzione di test
-test_sudoku()
