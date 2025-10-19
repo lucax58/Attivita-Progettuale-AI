@@ -13,30 +13,40 @@ RESULTS_DIR.mkdir(exist_ok=True)
 
 RUNS_PER_PUZZLE = 100
 
+# Dataset per livello
 LEVELS = {
     "facile": DATA_DIR / "sudoku_easy.txt",
     "medio": DATA_DIR / "sudoku_medio.txt",
     "difficile": DATA_DIR / "sudoku_hard.txt",
 }
 
-
+# Percorsi solver esterni (aggiornali se diverso)
 FSSS2_PATH = Path("fsss2/fsss2.exe")
 FASTSOLV_PATH = Path("fast_solv_9r2/fast_solv_9r2.exe")
 
-
+# ===============================
+# FUNZIONI DI SUPPORTO
+# ===============================
 
 def read_puzzles(file_path):
     with open(file_path, "r") as f:
         return [line.strip() for line in f if line.strip()]
 
 def measure_time(func, *args, runs=100):
+    print(f"[Inizio {runs} run...]", end=" ", flush=True)
     times = []
-    for _ in range(runs):
+    for i in range(runs):
+        if i % 10 == 0:  # Stampa ogni 10 run
+            print(f"{i}...", end="", flush=True)
         start = time.perf_counter()
         func(*args)
         times.append(time.perf_counter() - start)
+    print(f"{runs}!", end=" ", flush=True)
     return statistics.mean(times)
 
+# ===============================
+# MINI ZINC SETUP
+# ===============================
 
 model = minizinc.Model("sudoku.mzn")
 solver_gecode = minizinc.Solver.lookup("gecode")
@@ -50,8 +60,9 @@ def solve_minizinc(solver, puzzle):
     result = instance.solve()
     return result
 
-
+# ===============================
 # OR-TOOLS NATIVO
+# ===============================
 
 def solve_ortools_native(puzzle_string):
     """Risolve Sudoku usando OR-Tools CP-SAT nativo (ottimizzato)"""
@@ -112,10 +123,12 @@ def solve_ortools_native(puzzle_string):
     else:
         return None
 
-
+# ===============================
+# SOLVER ESTERNI
+# ===============================
 
 def solve_fsss2(puzzle):
-
+    """Esegue fsss2.exe passando il Sudoku su stdin"""
     subprocess.run(
         [str(FSSS2_PATH)], 
         input=puzzle,
@@ -125,7 +138,7 @@ def solve_fsss2(puzzle):
     )
 
 def solve_fast9r2(puzzle):
-
+    """Esegue fast_solv_9r2.exe passando il Sudoku su stdin"""
     subprocess.run(
         [str(FASTSOLV_PATH)],
         input=puzzle,
@@ -134,7 +147,9 @@ def solve_fast9r2(puzzle):
         stderr=subprocess.DEVNULL
     )
 
-#loop principale dei test
+# ===============================
+# LOOP DI TEST
+# ===============================
 
 def run_tests():
     for level_name, file_path in LEVELS.items():
@@ -153,36 +168,37 @@ def run_tests():
         for idx, puzzle in enumerate(puzzles, 1):
             print(f"\n Puzzle {idx}/{len(puzzles)}")
 
-            #DLX
+            # --- DLX (Python)
             print("  Testing DLX...", end=" ", flush=True)
             t_dlx = measure_time(lambda: risolvi_sudoku_dancing_links((3,3), puzzle), runs=RUNS_PER_PUZZLE)
             results["DLX"].append(t_dlx)
             print(f"✓ {t_dlx*1000:.2f} ms")
 
-            #MiniZinc Gecode
+            # --- MiniZinc Gecode
             print("  Testing Gecode...", end=" ", flush=True)
             t_gecode = measure_time(lambda: solve_minizinc(solver_gecode, puzzle), runs=RUNS_PER_PUZZLE)
             results["Gecode"].append(t_gecode)
             print(f"✓ {t_gecode*1000:.2f} ms")
 
-            #MiniZinc OR-Tools
+            # --- MiniZinc OR-Tools
             print("  Testing OR-Tools (MZN)...", end=" ", flush=True)
             t_ortools_mzn = measure_time(lambda: solve_minizinc(solver_ortools_mzn, puzzle), runs=RUNS_PER_PUZZLE)
             results["OR-Tools-MZN"].append(t_ortools_mzn)
             print(f"✓ {t_ortools_mzn*1000:.2f} ms")
 
-            #or-tools native
+            # --- OR-Tools Native
             print("  Testing OR-Tools (Native)...", end=" ", flush=True)
             t_ortools_native = measure_time(lambda: solve_ortools_native(puzzle), runs=RUNS_PER_PUZZLE)
             results["OR-Tools-Native"].append(t_ortools_native)
             print(f"✓ {t_ortools_native*1000:.2f} ms")
 
+            # --- FSSS2 (eseguibile)
             print("  Testing FSSS2...", end=" ", flush=True)
             t_fsss2 = measure_time(lambda: solve_fsss2(puzzle), runs=RUNS_PER_PUZZLE)
             results["FSSS2"].append(t_fsss2)
             print(f"✓ {t_fsss2*1000:.2f} ms")
 
-            
+            # --- Fast Solver 9r2 (eseguibile)
             print("  Testing Fast9r2...", end=" ", flush=True)
             t_fast9 = measure_time(lambda: solve_fast9r2(puzzle), runs=RUNS_PER_PUZZLE)
             results["Fast9r2"].append(t_fast9)
@@ -197,7 +213,7 @@ def run_tests():
                 f"Fast9r2: {t_fast9*1000:.2f} ms"
             )
 
-        #save dei risultati
+        # --- Salva i risultati per ogni solver
         for solver_name, times in results.items():
             out_file = RESULTS_DIR / f"{solver_name.lower()}_{level_name}.txt"
             with open(out_file, "w") as f:
@@ -206,7 +222,7 @@ def run_tests():
             
             print(f"Salvato {solver_name}: {out_file.name}")
 
-        #pausa senno esplode il pc
+        # --- Pausa manuale tra livelli
         if level_name != "difficile":
             input("\n  Premi INVIO per continuare con il livello successivo...\n")
 
