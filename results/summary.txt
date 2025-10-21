@@ -1,0 +1,27 @@
+RIASSUNTO BENCHMARK SUDOKU SOLVER
+Solver               Difficoltà      Media (ms)     
+----------------------------------------------------------------------
+DLX                  facile                  7.04
+DLX                  medio                  92.87
+DLX                  difficile              58.99
+----------------------------------------------------------------------
+FAST9R2              facile                 15.44
+FAST9R2              medio                  13.27
+FAST9R2              difficile              11.34
+----------------------------------------------------------------------
+FSSS2                facile                 13.52
+FSSS2                medio                  11.54
+FSSS2                difficile              10.08
+----------------------------------------------------------------------
+GECODE               facile               1053.77
+GECODE               medio                 977.48
+GECODE               difficile            1085.02
+----------------------------------------------------------------------
+OR-TOOLS-MZN         facile               1092.21
+OR-TOOLS-MZN         medio                1214.49
+OR-TOOLS-MZN         difficile            3210.00
+----------------------------------------------------------------------
+OR-TOOLS-NATIVE      facile                  9.50
+OR-TOOLS-NATIVE      medio                  24.85
+OR-TOOLS-NATIVE      difficile              19.88
+----------------------------------------------------------------------
